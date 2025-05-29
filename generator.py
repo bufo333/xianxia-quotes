@@ -4,60 +4,98 @@ xianxia_quotes
 A small utility to generate xianxia-style proverbs, e.g.:
     “Even a dragon will lose to a snake in its lair”
 """
-
 import random
 
-# Constants: lists of terms used to build each proverb
-ANIMALS = [
-    "dragon", "tiger", "lion", "serpent", "fox", "wolf", "eagle", "panther",
-    "bear", "phoenix", "hare", "crane", "crow", "hawk", "monkey", "elephant",
-    "rhinoceros", "leopard", "cobra", "stallion", "boar", "otter", "falcon",
-    "lynx", "jaguar", "camel", "mongoose", "buffalo", "yak", "stag", "manticore",
-    "gryphon", "kraken", "wyvern", "unicorn", "basilisk", "chimera",
-    "hippopotamus", "puma", "moth", "stingray", "orca", "gazelle", "badger",
-    "mantis", "koala", "platypus", "narwhal", "lemur", "tapir", "armadillo",
-    "porcupine", "peacock", "vulture", "tarantula", "seahorse", "ostrich"
-]
+# Constants: grouped by habitat
+HABITAT_ANIMALS = {
+    "land": [
+        "dragon", "tiger", "lion", "serpent", "fox", "wolf", "panther",
+        "bear", "elephant", "rhinoceros", "leopard", "stallion", "boar",
+        "mongoose", "buffalo", "yak", "stag", "manticore", "gryphon",
+        "wyvern", "unicorn", "basilisk", "chimera", "hippopotamus",
+        "puma", "lemur", "tapir", "armadillo", "porcupine", "badger",
+    ],
+    "air": [
+        "eagle", "phoenix", "crane", "crow", "hawk", "falcon", "moth",
+        "vulture", "peacock",
+    ],
+    "water": [
+        "otter", "stingray", "orca", "narwhal", "seahorse", "kraken",
+    ],
+    "mythic": [  # Mythical/mixed creatures that can appear in multiple habitats
+        "dragon", "phoenix", "gryphon", "wyvern", "unicorn", "basilisk",
+        "chimera", "manticore", "kraken",
+    ],
+}
 
-CONTEXTS = [
-    "in its lair", "in the mountain", "in the forest", "in the sky", "at dawn",
-    "at dusk", "under the moon", "under the sun", "by the river", "on the desert",
-    "in the mist", "in the storm", "near the abyss", "on the ridge",
-    "at high tide", "in the valley", "on the cliff", "in the swamp",
-    "at the crossroads", "in the canyon", "on the ice", "in the jungle",
-    "beneath the waves", "among the reeds", "within the volcano",
-    "at the waterfall", "on the floating isle", "in the shadow",
-    "along the caravan trail", "at the mountain pass", "within the palace",
-    "on the battlements", "beside the ancient ruins", "under the glacier",
-    "amid the ruins", "within the labyrinth", "by the geyser", "on the salt flats",
-    "in the wind-swept plains"
-]
+# Contexts mapped to one or more habitats
+CONTEXTS = {
+    "in its lair": ["land", "mythic"],
+    "in the mountain": ["land"],
+    "in the forest": ["land"],
+    "in the sky": ["air"],
+    "at dawn": ["land", "air"],
+    "under the moon": ["land", "air"],
+    "by the river": ["land", "water"],
+    "at high tide": ["water"],
+    "beneath the waves": ["water"],
+    "on the ice": ["land", "water"],
+    "in the jungle": ["land"],
+    "on the floating isle": ["air", "mythic"],
+    "within the volcano": ["land", "mythic"],
+    "at the waterfall": ["land", "water"],
+    "in the mist": ["land", "water"],
+    "in the swamp": ["land", "water"],
+    "on the ridge": ["land"],
+    "at the crossroads": ["land"],
+    "in the canyon": ["land"],
+    "among the reeds": ["land", "water"],
+    "within the palace": ["land"],
+    "on the battlements": ["land"],
+    "under the glacier": ["land", "water"],
+    "within the labyrinth": ["land"],
+    "by the geyser": ["land"],
+    "on the salt flats": ["land"],
+    "in the wind-swept plains": ["land"],
+}
 
 VERBS = [
     "lose to", "bow before", "fall to", "be humbled by", "be outmatched by",
     "yield to", "falter before", "submit to", "be overshadowed by",
     "be outfoxed by", "be outpaced by", "be outmaneuvered by", "respect",
     "cower before", "be surprised by", "be bested by", "be tricked by",
-    "be ensnared by", "be dethroned by", "be outwitted by", "be outclassed by",
-    "be dominated by", "be flanked by", "be overpowered by",
-    "be outmatched in strength by", "be confounded by", "be unseated by",
-    "be eclipsed by", "be outplayed by", "be overrun by", "be startled by",
-    "be cornered by", "be outworked by", "be checked by", "be silenced by"
+    "be ensnared by", "be dethroned by", "be outwitted by",
+    "be outclassed by", "be dominated by", "be flanked by",
+    "be overpowered by", "be outmatched in strength by", "be confounded by",
+    "be unseated by", "be eclipsed by", "be outplayed by", "be overrun by",
+    "be startled by", "be cornered by", "be outworked by", "be checked by",
+    "be silenced by",
 ]
 
 
 def quote_stream():
     """
-    An infinite generator of xianxia-style proverbs.
+    An infinite generator of habitat-aware xianxia-style proverbs.
 
     Yields:
-        str: A proverb of the form:
-             “Even a {animal1} will {verb} a {animal2} {context}”
+        str: A proverb like
+             "Even a dragon will lose to a wolf in the forest"
     """
+    contexts = list(CONTEXTS.items())
     while True:
-        subject, target = random.sample(ANIMALS, 2)
+        context, habitats = random.choice(contexts)
+        # Collect all animals valid in the chosen habitats
+        valid_animals = set()
+        for habitat in habitats:
+            valid_animals.update(HABITAT_ANIMALS.get(habitat, []))
+
+        # Skip if fewer than two candidates
+        if len(valid_animals) < 2:
+            continue
+
+        # Cast to list so random.sample works
+        subject, target = random.sample(list(valid_animals), 2)
         verb = random.choice(VERBS)
-        context = random.choice(CONTEXTS)
         yield f"“Even a {subject} will {verb} a {target} {context}”"
 
 
