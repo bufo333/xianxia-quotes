@@ -2,7 +2,7 @@
 xianxia_quotes package initialization.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 from generator import single_quote, quote_stream
 
