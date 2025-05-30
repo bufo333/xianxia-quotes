@@ -2,9 +2,9 @@
 xianxia_quotes package initialization.
 """
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
-from generator import single_quote, quote_stream
+from .xianxia_quotes import single_quote, quote_stream
 
 __all__ = [
     "__version__",
