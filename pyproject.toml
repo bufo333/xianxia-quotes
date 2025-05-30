@@ -10,3 +10,7 @@ readme = "README.md"
 requires-python = ">=3.7"
 license = { text = "GPL-3.0-or-later" }
 authors = [ { name = "John Burns", email = "john@johnburns.io" } ]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["xianxia_quotes"]
